@@ -8,16 +8,18 @@ Integrace pro stahování dat o spotřebe a výrobě z EGD Distribuce.
 
 ## config.yaml
 
+```yaml
 sensor:
   - platform: egdpowerdata
     client_id: xxxxxxxxxxxxxxxxxxxxxxx #Client ID z Portalu
     client_secret: yyyyyyyyyyyyyyyyyyyyyyy #client Secret z portalu
     ean: '000000EAN000000' #EAN
     days: 1 # Vzdy 1!!!
-
+```
 
 ## Automatizace pro aktualizaci
 
+```yaml
 alias: Refresh EGD Power Data Sensor
 trigger:
   - platform: time
@@ -27,6 +29,7 @@ action:
     data: {}
     target:
       entity_id: sensor.egddistribuce_status_000000EAN000000_1 #Vyberte dle vaseho entitu EAN
+```
 
 ## Entity
 
