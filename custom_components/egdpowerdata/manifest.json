@@ -1,8 +1,9 @@
 {
-    "domain": "egdpowerdata",
+    "domain": "egddistribuce",
     "name": "EGD Power Data",
     "version": "0.0.5",
     "documentation": "https://github.com/ondrejvysek/HomeAssistant-EGD-PowerData",
+    "issue_tracker": "https://github.com/ondrejvysek/HomeAssistant-EGD-PowerData/issues",
     "requirements": [],
     "dependencies": [],
     "codeowners": [
