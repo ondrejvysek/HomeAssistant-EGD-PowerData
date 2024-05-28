@@ -1,0 +1,12 @@
+{
+    "domain": "egdpowerdata",
+    "name": "EGD Power Data",
+    "version": "0.0.5",
+    "documentation": "https://github.com/ondrejvysek/HomeAssistant-EGD-PowerData",
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": [
+        "@ondrejvysek"
+    ],
+    "iot_class": "cloud_polling"
+}
