@@ -1,4 +1,4 @@
-#EGD Distribuce Power Data
+# EGD Distribuce Power Data
 
 Integrace pro stahování dat o spotřebe a výrobě z EGD Distribuce.
 

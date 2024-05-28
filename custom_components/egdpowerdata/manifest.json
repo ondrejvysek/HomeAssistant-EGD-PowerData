@@ -8,5 +8,6 @@
     "codeowners": [
         "@ondrejvysek"
     ],
-    "iot_class": "cloud_polling"
+    "iot_class": "cloud_polling",
+    "icon": "custom_components/egdpowerdata/egd-logo-red.svg"
 }
