@@ -14,7 +14,7 @@ Pokud se vám řešení líbí, můžete mne podpořit v další tvorbě a rozvo
 
 ```yaml
 sensor:
-  - platform: egdpowerdata
+  - platform: egdczpowerdata
     client_id: xxxxxxxxxxxxxxxxxxxxxxx #Client ID z Portalu
     client_secret: yyyyyyyyyyyyyyyyyyyyyyy #client Secret z portalu
     ean: '000000EAN000000' #EAN
