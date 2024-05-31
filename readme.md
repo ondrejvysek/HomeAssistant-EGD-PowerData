@@ -1,6 +1,6 @@
 # EGD Distribuce Power Data
 
-**Probíhá intenzivní vývoj a testování** 
+**Probíhá intenzivní vývoj a testování v uzavřené skupině** 
 
 **Použití na vlastní riziko** Podpora zatím není poskytovaná, ale pokud v HA logu najdete nějakou chybu, budu za ni rád
 
