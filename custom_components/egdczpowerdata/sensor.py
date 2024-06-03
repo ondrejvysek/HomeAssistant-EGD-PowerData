@@ -165,7 +165,7 @@ class EGDPowerDataSensor(Entity):
             response.raise_for_status()
             data = response.json()
             _LOGGER.debug(dt.now().strftime("%Y-%m-%d %H:%M:%S") + f": {Colors.CYAN}Data retrieved: {data}{Colors.RESET}")
-            total_value = sum(float(item['value']) for item in data[0]['data'])
+            total_value = sum(float(item['value']) for item in data[0]['data'])/4
             self._state = total_value
             self._attributes = {
                 'stime': utc_stime.strftime('%Y-%m-%d %H:%M:%S %Z%z'),
