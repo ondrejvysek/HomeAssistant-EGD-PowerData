@@ -6,7 +6,7 @@ Pokud se vám řešení líbí, můžete mne podpořit v další tvorbě a rozvo
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ondrejv)
 
-**Probíhá intenzivní vývoj a testování** 
+**Veřejné testování** 
 
 **Použití na vlastní riziko**
 
@@ -17,7 +17,7 @@ sensor:
   - platform: egdczpowerdata
     client_id: xxxxxxxxxxxxxxxxxxxxxxx #Client ID z Portalu
     client_secret: yyyyyyyyyyyyyyyyyyyyyyy #client Secret z portalu
-    ean: '000000EAN000000' #EAN
+    ean: '000000EAN000000' #EAN Pokud máte Spotřební i výrobní EAN, zadejte spotřební, obsahuje oboje data
     days: 1 # Vzdy 1!!!
 ```
 

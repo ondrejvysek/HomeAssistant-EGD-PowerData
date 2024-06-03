@@ -1,15 +1,14 @@
 # EGD Distribuce Power Data
 
-**Probíhá intenzivní vývoj a testování v uzavřené skupině** 
-
-**Použití na vlastní riziko** Podpora zatím není poskytovaná, ale pokud v HA logu najdete nějakou chybu, budu za ni rád
-
 Integrace pro stahování dat o spotřebe a výrobě z EGD Distribuce.
 
 Pokud se vám řešení líbí, můžete mne podpořit v další tvorbě a rozvoji - za což vám předem děkuji :)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ondrejv)
 
+**Veřejné testování** 
+
+**Použití na vlastní riziko**
 
 ## config.yaml
 
@@ -18,7 +17,7 @@ sensor:
   - platform: egdczpowerdata
     client_id: xxxxxxxxxxxxxxxxxxxxxxx #Client ID z Portalu
     client_secret: yyyyyyyyyyyyyyyyyyyyyyy #client Secret z portalu
-    ean: '000000EAN000000' #EAN
+    ean: '000000EAN000000' #EAN Pokud máte Spotřební i výrobní EAN, zadejte spotřební, obsahuje oboje data
     days: 1 # Vzdy 1!!!
 ```
 
