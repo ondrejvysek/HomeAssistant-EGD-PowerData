@@ -10,6 +10,8 @@ Pokud se vám řešení líbí, můžete mne podpořit v další tvorbě a rozvo
 
 **Použití na vlastní riziko**
 
+Při reportování chyby, problému,... přikládejte log: /homeassistant/egddistribuce.log
+
 ## config.yaml
 
 ```yaml
