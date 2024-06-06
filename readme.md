@@ -25,11 +25,10 @@ sensor:
 
 ## Automatizace pro aktualizaci
 
+Automatizace není potřeba, data se natahují průběžně automaticky, automatizací lze případně urychlit aktualizaci
+
 ```yaml
 alias: Refresh EGD Power Data Sensor
-trigger:
-  - platform: time
-    at: "00:35:00"
 action:
   - service: homeassistant.update_entity
     data: {}

@@ -165,7 +165,10 @@ class EGDPowerDataSensor(Entity):
             response.raise_for_status()
             data = response.json()
             
-            total_value = sum(float(item['value']) for item in data[0]['data'])/4
+            try:
+                total_value = sum(item['value'] for item in data[0]['data'])/4
+            except:
+                total_value = 0
             self._state = total_value
             self._attributes = {
                 'stime': utc_stime.strftime('%Y-%m-%d %H:%M:%S %Z%z'),
