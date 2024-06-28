@@ -1,6 +1,6 @@
 # EGD Distribuce Power Data
 
-!!! po posledni aktualizaci HA se data zacala stahovat kazdou minutu a distribuce oslovuje uzivatele s nadmernym zatezovanim API. Prosim intergraci zatim nepouzivat, na aktualizaci se pracuje
+**!!! po posledni aktualizaci HA se data zacala stahovat kazdou minutu a distribuce oslovuje uzivatele s nadmernym zatezovanim API. Prosim intergraci zatim nepouzivat, na aktualizaci se pracuje**
 
 Integrace pro stahování dat o spotřebe a výrobě z EGD Distribuce.
 
