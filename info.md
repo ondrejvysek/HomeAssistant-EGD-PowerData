@@ -40,6 +40,13 @@ mode: single
 * sensor.egd_000000EAN000000_icc1 - entita s denni spotrebou z predchoziho dne
 * sensor.egd_000000EAN000000_isc1 - entita s denni vyrobou z predchoziho dne
 
+Oba senzory v dalších atributech (lze zobrazit např v Dev Tools) vrací informace o časech, které byly žádány z API a pro testování i vrácený JSON:
+* stime: UTC čas začátku dat (-2hod proti CET)
+* etime: UTC čas konce dat (-2hod proti CET)
+* local_stime: Lokální (CET) čas začátku dat
+* local_etime: Lokální (CET) čas konce dat
+* json: vrácený JSON - pokud má API problém, pak je zde {'error': 'No results'}
+* last_updated: Poslední čas aktualizace (lze ověřit, zdali proběhla automatizace či aktualizace doběhla - tj přihlášení do API a získání ICC1 a ISC1)
 
 # Dlouhodobá statistika (TEST)
 
