@@ -1,6 +1,6 @@
 # EGD Distribuce Power Data
 
-** Testovací verze kompletně přepracovaného skriptu EGD **
+**Testovací verze kompletně přepracovaného skriptu EGD 1.8.2024** Tato testovací verze eliminuje časté volání proti API distributora
 **Použití na vlastní riziko**
 
 Při reportování chyby, problému,... přikládejte log: /homeassistant/egddistribuce.log
