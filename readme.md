@@ -1,6 +1,9 @@
 # EGD Distribuce Power Data
 
-**Testovací verze kompletně přepracovaného skriptu EGD 1.8.2024** Tato testovací verze eliminuje časté volání proti API distributora
+**Testovací verze kompletně přepracovaného skriptu EGD 1.8.2024** Tato testovací verze eliminuje časté volání proti API distributora.
+
+Při každé aktualizaci dat (po spušení HA a při události rund_egd) jsou provedena pouze 3 volání API proti portálu distributora.
+
 **Použití na vlastní riziko**
 
 Při reportování chyby, problému,... předejte záznamy z logu HomeAssistant s označením **[custom_components.egdczpowerdata.sensor]**
