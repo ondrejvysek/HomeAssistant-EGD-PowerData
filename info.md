@@ -3,7 +3,7 @@
 **Testovací verze kompletně přepracovaného skriptu EGD 1.8.2024** Tato testovací verze eliminuje časté volání proti API distributora
 **Použití na vlastní riziko**
 
-Při reportování chyby, problému,... přikládejte log: /homeassistant/egddistribuce.log
+Při reportování chyby, problému,... předejte záznamy z logu HomeAssistant s označením **[custom_components.egdczpowerdata.sensor]**
 
 ## configuration.yaml
 
