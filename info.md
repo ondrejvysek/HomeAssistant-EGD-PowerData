@@ -5,7 +5,7 @@
 
 Při reportování chyby, problému,... přikládejte log: /homeassistant/egddistribuce.log
 
-## config.yaml
+## configuration.yaml
 
 ```yaml
 sensor:
@@ -42,7 +42,7 @@ mode: single
 
 Senzory standardně uchovávají data 10dní (v závislosti na nastavení retence vašeho HA). Následující konfigurace by měla zajistit (testuje se), že data sensor.egd_* zůstanou na trvalo. 
 
-config.yaml:
+## configuration.yaml:
 
 ```yaml
 recorder:
