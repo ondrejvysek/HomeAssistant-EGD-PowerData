@@ -1,20 +1,11 @@
 # EGD Distribuce Power Data
 
-**!!! po posledni aktualizaci HA se data zacala stahovat kazdou minutu a distribuce oslovuje uzivatele s nadmernym zatezovanim API. Prosim intergraci zatim nepouzivat, na aktualizaci se pracuje**
-
-Integrace pro stahování dat o spotřebe a výrobě z EGD Distribuce.
-
-Pokud se vám řešení líbí, můžete mne podpořit v další tvorbě a rozvoji - za což vám předem děkuji :)
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/ondrejv)
-
-**Veřejné testování** 
-
+**Testovací verze kompletně přepracovaného skriptu EGD 1.8.2024** Tato testovací verze eliminuje časté volání proti API distributora
 **Použití na vlastní riziko**
 
-Při reportování chyby, problému,... přikládejte log: /homeassistant/egddistribuce.log
+Při reportování chyby, problému,... předejte záznamy z logu HomeAssistant s označením **[custom_components.egdczpowerdata.sensor]**
 
-## config.yaml
+## configuration.yaml
 
 ```yaml
 sensor:
@@ -27,23 +18,43 @@ sensor:
 
 ## Automatizace pro aktualizaci
 
-Automatizace není potřeba, data se natahují průběžně automaticky, automatizací lze případně urychlit aktualizaci
+Aktualizace se spouští pomocí události rund_egd, kterou lze buď vyvolat manuálně nebo pravidelně pomocí automatizace. Ideálně cca 0:30, maximálně však 4x za den (data se stejně u EGD neaktualizují častěji)
 
 ```yaml
-alias: Refresh EGD Power Data Sensor
+alias: Run EGD
+description: ""
+trigger:
+  - platform: time
+    at: "00:30:00"
+condition: []
 action:
-  - service: homeassistant.update_entity
-    data: {}
-    target:
-      entity_id: sensor.egddistribuce_status_000000EAN000000_1 #Vyberte dle vaseho entitu EAN
+  - event: run_egd
+mode: single
 ```
 
-## Entity
+## Entity / Senzory
 
-* sensor.egddistribuce_000000EAN000000_1_icc1 - entita s denni spotrebou z predchoziho dne
-* sensor.egddistribuce_000000EAN000000_1_isc1 - entita s denni vyrobou z predchoziho dne
-* sensor.egddistribuce_status_000000EAN000000_1 - Interni entita slouzici pro aktualizace
+* sensor.egd_000000EAN000000_icc1 - entita s denni spotrebou z predchoziho dne
+* sensor.egd_000000EAN000000_isc1 - entita s denni vyrobou z predchoziho dne
 
-# Statisticke senzory
 
-Nevim jak se to bude chovat v case a v pripadech, kdy se stazeni spusti vicekrat
+# Dlouhodobá statistika
+
+Senzory standardně uchovávají data 10dní (v závislosti na nastavení retence vašeho HA). Následující konfigurace by měla zajistit (testuje se), že data sensor.egd_* zůstanou na trvalo. 
+
+## configuration.yaml:
+
+```yaml
+recorder:
+  purge_keep_days: 10  # Default HA retention
+  include:
+    entity_globs:
+      - sensor.energy_*  # Include all energy sensors matching this pattern
+      - sensor.egd_*
+  exclude:
+    domains:
+      - sensor  # Exclude all sensors globally
+    entity_globs:
+      - sensor.energy_*  # Override exclusion to include energy sensors
+      - sensor.egd_*
+```
