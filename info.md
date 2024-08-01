@@ -41,7 +41,7 @@ mode: single
 * sensor.egd_000000EAN000000_isc1 - entita s denni vyrobou z predchoziho dne
 
 
-# Dlouhodobá statistika
+# Dlouhodobá statistika (TEST)
 
 Senzory standardně uchovávají data 10dní (v závislosti na nastavení retence vašeho HA). Následující konfigurace by měla zajistit (testuje se), že data sensor.egd_* zůstanou na trvalo. 
 
