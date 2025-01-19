@@ -1,6 +1,6 @@
 # EGD CZ API for retrieving energy data
 # Example usage:
-# api = EGDAPI(client_id="your_client_id", client_secret="your_client_secret", meter_id="your_meter_id")
+# api = EGDAPI(client_id="your_client_id", client_secret="your_client_secret", meter_id="your_meter_id", debug=True)
 # token = api.get_token()
 # if token:
 #     data = api.get_data() # get yesterday's data
@@ -21,7 +21,6 @@
 ### TODO:
 # 1. sum functions all data, daily, weekly, monthly
 
-
 import requests
 from dateutil import tz
 from datetime import datetime, timedelta
@@ -31,12 +30,22 @@ class EGDAPI:
     url_data = "https://data.distribuce24.cz/rest/spotreby"
     url_token = "https://idm.distribuce24.cz/oauth/token"
 
-    def __init__(self, client_id, client_secret, meter_id):
+    def __init__(self, client_id, client_secret, meter_id, debug=False):
         self.client_id = client_id
         self.client_secret = client_secret
         self.meter_id = meter_id
         self.access_token = None
-        print(f"{Fore.GREEN}EGDAPI object created{Style.RESET_ALL}")
+        self.debug = debug
+        self.debug_print("EGDAPI object created", "SUCCESS")
+
+    def debug_print(self, message, severity=None):
+        if self.debug:
+            if severity == "ERROR":
+                print(f"{Fore.RED}{message}{Style.RESET_ALL}")
+            elif severity == "SUCCESS":
+                print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+            else:
+                print(message)
 
     def get_token(self):
         # Define the payload for the POST request to get the token
@@ -57,10 +66,10 @@ class EGDAPI:
             # Parse the JSON response
             token_data = response_token.json()
             self.access_token = token_data.get("access_token")
-            print(f"{Fore.GREEN}Access token retrieved successfully{Style.RESET_ALL}")
+            self.debug_print("Access token retrieved successfully", "SUCCESS")
             return self.access_token
         else:
-            print(f"{Fore.RED}Failed to get token: {response_token.status_code} - {response_token.text}{Style.RESET_ALL}")
+            self.debug_print(f"Failed to get token: {response_token.status_code} - {response_token.text}", "ERROR")
             return None
 
     def get_data(self, interval="yesterday", profile="ICC1", start_date=None, end_date=None):
@@ -89,27 +98,27 @@ class EGDAPI:
             end_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
         elif interval == "ytd":
             if not start_date:
-                print("Year to date interval requires start_date to be specified.")
+                self.debug_print("Year to date interval requires start_date to be specified.", "ERROR")
                 return None
             try:
                 start_date = datetime.strptime(start_date, "%d.%m.%Y").strftime('%Y-%m-%d')
             except ValueError:
-                print("Invalid date format. Please use day.month.year format.")
+                self.debug_print("Invalid date format. Please use day.month.year format.", "ERROR")
                 return None
             end_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
         elif interval == "interval":
             if not start_date or not end_date:
-                print("Custom interval requires both start_date and end_date.")
+                self.debug_print("Custom interval requires both start_date and end_date.", "ERROR")
                 return None
             # Parse the custom date strings in the format day.month.year
             try:
                 start_date = datetime.strptime(start_date, "%d.%m.%Y").strftime('%Y-%m-%d')
                 end_date = datetime.strptime(end_date, "%d.%m.%Y").strftime('%Y-%m-%d') + " 23:45:00"
             except ValueError:
-                print("Invalid date format. Please use day.month.year format.")
+                self.debug_print("Invalid date format. Please use day.month.year format.", "ERROR")
                 return None
         else:
-            print("Invalid interval specified.")
+            self.debug_print("Invalid interval specified.", "ERROR")
             return None
 
         # add time to the date 00:00:00.000Z and 23:45:00.000Z
@@ -119,18 +128,18 @@ class EGDAPI:
             start_date = datetime.strptime(start_date, "%Y-%m-%dT%H:%M:%S.000Z")
             end_date = datetime.strptime(end_date, "%Y-%m-%dT%H:%M:%S.000Z")
         except ValueError:
-            print(f"Invalid date format. Please use day.month.year format. {Fore.RED}Do not add time to the date.{Style.RESET_ALL}")
+            self.debug_print(f"Invalid date format. Please use day.month.year format. {Fore.RED}Do not add time to the date.{Style.RESET_ALL}", "ERROR")
             return None
         utc_stime = start_date.astimezone(tz.tzutc()).strftime('%Y-%m-%dT%H:%M:%S.000Z')
         utc_etime = end_date.astimezone(tz.tzutc()).strftime('%Y-%m-%dT%H:%M:%S.000Z')        
-        print("Start date:", start_date)
-        print("End date:", end_date)
-        print("UTC Start date:", utc_stime)
-        print("UTC End date:", utc_etime)
+        self.debug_print(f"Start date: {start_date}")
+        self.debug_print(f"End date: {end_date}")
+        self.debug_print(f"UTC Start date: {utc_stime}")
+        self.debug_print(f"UTC End date: {utc_etime}")
         
         # Check if the access token is available
         if not self.access_token:
-            print("Access token is missing. Please get the token first.")
+            self.debug_print("Access token is missing. Please get the token first.", "ERROR")
             return None
         # Define the headers for the GET request
         headers_data = {
@@ -145,7 +154,7 @@ class EGDAPI:
             "profile": profile,
             "pageSize": "3000"
         }
-        print("Data parameters:", params_data)
+        self.debug_print(f"Data parameters: {params_data}")
         all_data = []
         unique_data = []
         unique_timestamps = set()
@@ -153,7 +162,7 @@ class EGDAPI:
         while True:
             # Update the page number in the parameters
             params_data["pageStart"] = str(page_number)
-            print("Executing Page number:", page_number)
+            self.debug_print(f"Executing Page number: {page_number}")
             # Make the GET request to fetch the data
             response_data = requests.get(self.url_data, headers=headers_data, params=params_data)
             # Check if the request was successful
@@ -167,24 +176,24 @@ class EGDAPI:
                     if 'total' in first_record:
                         total = first_record['total']
                     else:
-                        print(f"{Fore.RED}Error: 'total' field not found in the response.{Style.RESET_ALL}")
+                        self.debug_print(f"Error: 'total' field not found in the response.", "ERROR")
                         break
                 else:
-                    print(f"{Fore.RED}Error: Unexpected response structure.{Style.RESET_ALL}")
+                    self.debug_print(f"Error: Unexpected response structure.", "ERROR")
                     break 
-                print("Iteration: ", page_number, " Total records:", total)               
+                self.debug_print(f"Iteration: {page_number} Total records: {total}")               
                 # Append the data to the list
                 all_data.extend(data)
                 if total < 3000:  # If the returned data is less than pageSize, we've reached the last page
                     break                
                 page_number += 1
             else:
-                print(f"Failed to get data: {response_data.status_code} - {response_data.text}")
+                self.debug_print(f"Failed to get data: {response_data.status_code} - {response_data.text}", "ERROR")
                 break
 
         if all_data:
-            print(f"{Fore.GREEN}Data retrieved successfully{Style.RESET_ALL}")
+            self.debug_print("Data retrieved successfully", "SUCCESS")
             return all_data
         else:  
-            print(f"{Fore.RED}No data found.{Style.RESET_ALL}")
+            self.debug_print("No data found.", "ERROR")
             return None
