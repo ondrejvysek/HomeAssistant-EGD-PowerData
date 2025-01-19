@@ -1,7 +1,7 @@
 import json
 from egd_api import EGDAPI
 
-api = EGDAPI("client_id", "client_secret", "ean")
+api = EGDAPI("client_id", "client_secret", "ean", True)
 token = api.get_token()
 if token:
     data = api.get_data() # see examples in egd_api.py
