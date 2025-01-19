@@ -15,8 +15,12 @@
 #   ISQ2 - Činná dodávka do sítě (přetok) čtvrthodinová - energie (kWh)
 #   ICCS - Spotřeba pokrytá z vůdčího odběrného místa čtvrthodinová (kWh)
 #   * Hodnoty v kW odpovídají střednímu čtvrthodinovému výkonu. Po součtu za období se nerovnají energii v kWh. Pro přepočet na kWh je potřeba hodnoty vydělit čtyřmi. 
-# Valid interval options: yesterday (Default), thisweek, lastweek, thismonth, lastmonth, thisyear, interval
-# Interval option "interval" requires start_date and end_date to be specified with the format day.month.year no time included (e.g. 25.1.2023)
+# Valid interval options: yesterday (Default), thisweek, lastweek, thismonth, lastmonth, thisyear, ytd, interval
+#   "interval" - requires start_date and end_date to be specified with the format day.month.year no time included (e.g. 25.1.2023)
+#   "ytd" - year to date. Enter start date, end date is yesterday
+### TODO:
+# 1. sum functions all data, daily, weekly, monthly
+
 
 import requests
 from dateutil import tz
@@ -83,6 +87,16 @@ class EGDAPI:
         elif interval == "thisyear":
             start_date = today.replace(month=1, day=1).strftime('%Y-%m-%d')
             end_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
+        elif interval == "ytd":
+            if not start_date:
+                print("Year to date interval requires start_date to be specified.")
+                return None
+            try:
+                start_date = datetime.strptime(start_date, "%d.%m.%Y").strftime('%Y-%m-%d')
+            except ValueError:
+                print("Invalid date format. Please use day.month.year format.")
+                return None
+            end_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
         elif interval == "interval":
             if not start_date or not end_date:
                 print("Custom interval requires both start_date and end_date.")
@@ -113,6 +127,7 @@ class EGDAPI:
         print("End date:", end_date)
         print("UTC Start date:", utc_stime)
         print("UTC End date:", utc_etime)
+        
         # Check if the access token is available
         if not self.access_token:
             print("Access token is missing. Please get the token first.")
