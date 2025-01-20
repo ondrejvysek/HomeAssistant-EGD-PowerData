@@ -18,13 +18,28 @@
 # Valid interval options: yesterday (Default), thisweek, lastweek, thismonth, lastmonth, thisyear, ytd, interval
 #   "interval" - requires start_date and end_date to be specified with the format day.month.year no time included (e.g. 25.1.2023)
 #   "ytd" - year to date. Enter start date, end date is yesterday
+# Valid sum_data range options: daily (Default), weekly, monthly, all
+#  "daily" - sum the data by day
+#  "weekly" - sum the data by week
+#  "monthly" - sum the data by month
+#  "all" - sum all the data
+#  Example usage:
+#   aggregate = api.sum_data(data, "all") # if the call was any (interval, ytd, thisweek, lastweek, thismonth, lastmonth, thisyear) return a single value
+#   aggregate = api.sum_data(data, "daily") # if the call was yesterday returns a single value, if the call was week, returns 7 values
+#   aggregate = api.sum_data(data, "weekly") # if the call was ytd, returns number of weeks since the start of the interval
+#   aggregate = api.sum_data(data, "monthly") # if the call was interval "1.1.2023", "31.1.2023" returns 12 values
+#   aggregate = api.sum_data(data, "all") # if the call was interval "1.1.2023", "31.12.2023" returns a single value (useful e.g. for the Virtual Battery)
 ### TODO:
-# 1. sum functions all data, daily, weekly, monthly
+# 
 
 import requests
+import json
+import pytz
 from dateutil import tz
 from datetime import datetime, timedelta
 from colorama import Fore, Style
+from collections import defaultdict
+from datetime import datetime as dt
 
 class EGDAPI:
     url_data = "https://data.distribuce24.cz/rest/spotreby"
@@ -44,6 +59,8 @@ class EGDAPI:
                 print(f"{Fore.RED}{message}{Style.RESET_ALL}")
             elif severity == "SUCCESS":
                 print(f"{Fore.GREEN}{message}{Style.RESET_ALL}")
+            elif severity == "INFO":
+                print(f"{Fore.CYAN}{message}{Style.RESET_ALL}")
             else:
                 print(message)
 
@@ -182,8 +199,17 @@ class EGDAPI:
                     self.debug_print(f"Error: Unexpected response structure.", "ERROR")
                     break 
                 self.debug_print(f"Iteration: {page_number} Total records: {total}")               
-                # Append the data to the list
-                all_data.extend(data)
+                # Check if an entry with the same ean/eic, profile, units, and total already exists
+                existing_entry = next((entry for entry in all_data if entry['ean/eic'] == first_record['ean/eic'] and entry['profile'] == first_record['profile']), None)
+
+                if existing_entry:
+                    # Append the data to the existing entry's data list
+                    self.debug_print(f"Data already exists for this ean/eic, profile, units, and total. Appending the data to the existing entry.","INFO")
+                    existing_entry['data'].extend(first_record['data'])
+                else:
+                    # Add the new entry to all_data
+                    self.debug_print(f"New data entry found. Adding to the list.","INFO")
+                    all_data.append(first_record)
                 if total < 3000:  # If the returned data is less than pageSize, we've reached the last page
                     break                
                 page_number += 1
@@ -197,3 +223,125 @@ class EGDAPI:
         else:  
             self.debug_print("No data found.", "ERROR")
             return None
+        
+    def sum_data(self, data, range="daily"):
+        if not data:
+            self.debug_print("No data to sum.", "ERROR")
+            return None
+        self.debug_print(f"We have valid data to sum. Range: {range}")
+        datalen = len(data[0]['data'])
+        if range == "daily":
+            try:
+                daily_data = defaultdict(float)
+                utc = pytz.utc
+                local_tz = pytz.timezone('Europe/Prague')
+
+                for item in data[0]['data']:
+                    if item['status'] == 'IU012':
+                        utc_time = dt.strptime(item['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                        utc_time = utc.localize(utc_time)
+                        local_time = utc_time.astimezone(local_tz)
+                        date_str = local_time.strftime('%Y-%m-%d')
+                        daily_data[date_str] += item['value']
+
+                profile = data[0]['profile']
+                if profile in ['ICC1', 'ISC1', 'ICQ2', 'ISQ2']:
+                    for date_str in daily_data:
+                        daily_data[date_str] /= 4
+
+                for date_str in daily_data:
+                    daily_data[date_str] = round(daily_data[date_str], 2)
+
+                daily_data_json = json.dumps(daily_data)
+            except Exception as e:
+                self.debug_print(f"Error while summing data: {str(e)}", "ERROR")
+                daily_data_json = json.dumps({})
+
+            self.debug_print(f"Daily aggregated data: {daily_data_json}", "SUCCESS")
+            return daily_data
+
+        elif range == "weekly":
+            try:
+                weekly_data = defaultdict(float)
+                utc = pytz.utc
+                local_tz = pytz.timezone('Europe/Prague')
+
+                for item in data[0]['data']:
+                    if item['status'] == 'IU012':
+                        utc_time = dt.strptime(item['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                        utc_time = utc.localize(utc_time)
+                        local_time = utc_time.astimezone(local_tz)
+                        week_num = local_time.strftime('%Y-%W')
+                        weekly_data[week_num] += item['value']
+
+                profile = data[0]['profile']
+                if profile in ['ICC1', 'ISC1']:
+                    for week_num in weekly_data:
+                        weekly_data[week_num] /= 4
+
+                for week_num in weekly_data:
+                    weekly_data[week_num] = round(weekly_data[week_num], 2)
+
+                weekly_data_json = json.dumps(weekly_data)
+            except Exception as e:
+                self.debug_print(f"Error while summing data: {str(e)}", "ERROR")
+                weekly_data_json = json.dumps({})
+
+            self.debug_print(f"Weekly aggregated data: {weekly_data_json}", "SUCCESS")
+            return weekly_data
+
+        elif range == "monthly":
+            try:
+                monthly_data = defaultdict(float)
+                utc = pytz.utc
+                local_tz = pytz.timezone('Europe/Prague')
+
+                for item in data[0]['data']:
+                    if item['status'] == 'IU012':
+                        utc_time = dt.strptime(item['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                        utc_time = utc.localize(utc_time)
+                        local_time = utc_time.astimezone(local_tz)
+                        month_num = local_time.strftime('%Y-%m')
+                        monthly_data[month_num] += item['value']
+
+                profile = data[0]['profile']
+                if profile in ['ICC1', 'ISC1']:
+                    for month_num in monthly_data:
+                        monthly_data[month_num] /= 4
+
+                for month_num in monthly_data:
+                    monthly_data[month_num] = round(monthly_data[month_num], 2)
+
+                monthly_data_json = json.dumps(monthly_data)
+            except Exception as e:
+                self.debug_print(f"Error while summing data: {str(e)}", "ERROR")
+                monthly_data_json = json.dumps({})
+
+            self.debug_print(f"Monthly aggregated data: {monthly_data_json}", "SUCCESS")
+            return monthly_data
+
+        elif range == "all":
+            try:
+                all_data = defaultdict(float)
+
+                for item in data[0]['data']:
+                    if item['status'] == 'IU012':
+                        all_data['total'] += item['value']
+
+                profile = data[0]['profile']
+                if profile in ['ICC1', 'ISC1']:
+                    all_data['total'] /= 4
+
+                all_data['total'] = round(all_data['total'], 2)
+
+                all_data_json = json.dumps(all_data)
+            except Exception as e:
+                self.debug_print(f"Error while summing data: {str(e)}", "ERROR")
+                all_data_json = json.dumps({})
+
+            self.debug_print(f"All aggregated data: {all_data_json}", "SUCCESS")
+            return all_data
+
+        else:
+            self.debug_print("Invalid range specified.", "ERROR")
+            return {}
