@@ -245,7 +245,7 @@ class EGDAPI:
                         daily_data[date_str] += item['value']
 
                 profile = data[0]['profile']
-                if profile in ['ICC1', 'ISC1', 'ICQ2', 'ISQ2']:
+                if profile in ['ICC1', 'ISC1']:
                     for date_str in daily_data:
                         daily_data[date_str] /= 4
 
