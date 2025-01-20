@@ -5,10 +5,10 @@ from egd_api import EGDAPI
 egdapi = EGDAPI("client_id", "client_secret", "ean", True)
 token = egdapi.get_token()
 if token:
-    #data = api.get_data() # see examples in egd_api.py
-    #data = egdapi.get_data("lastmonth", "ICC1") # see examples in egd_api.py
-    dataconsumption = egdapi.get_data("ytd", "ICC1", "1.11.2024") # see examples in egd_api.py
-    dataproduction = egdapi.get_data("ytd", "ISC1", "1.11.2024") # see examples in egd_api.py
+    #data = api.get_data() # get yesterday data for the ICC1 profile - see examples in egd_api.py
+    #data = egdapi.get_data("lastmonth", "ICC1") # get previous month data for the ICC1 profile - see examples in egd_api.py
+    dataconsumption = egdapi.get_data("ytd", "ICC1", "1.11.2024") # get data from 1.11.2024 until yesterday for ICC1 profile - see examples in egd_api.py
+    dataproduction = egdapi.get_data("ytd", "ISC1", "1.11.2024") # get data from 1.11.2024 until yesterday for ISC1 profile - see examples in egd_api.py
     if dataconsumption:
         #print(data)
         aggregate = egdapi.sum_data(dataconsumption, "all")
