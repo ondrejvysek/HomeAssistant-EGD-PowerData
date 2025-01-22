@@ -235,6 +235,23 @@ class EGDAPI:
         data = self.get_data("interval", profile, start_date, end_date)
         return data
 
+    def invert_data(self, data):
+        # Invert the data values
+        if not data:
+            self.debug_print("No data to invert.", "ERROR")
+            return None
+        try:
+            if not isinstance(data, dict):
+                self.debug_print("Invalid data structure. Expected a dictionary.", "ERROR")
+                return None
+            
+            inverted_data = {date: -value for date, value in data.items()}
+            self.debug_print("Data inverted successfully", "SUCCESS")
+            return inverted_data
+        except Exception as e:
+            self.debug_print(f"Error while inverting data: {str(e)}", "ERROR")
+            return None
+
     def sum_data(self, data, range="daily"):
         if not data:
             self.debug_print("No data to sum.", "ERROR")
