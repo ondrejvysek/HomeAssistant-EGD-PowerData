@@ -237,6 +237,7 @@ class EGDAPI:
 
     def invert_data(self, data):
         # Invert the data values
+        # Useful for consumed energy data for charts (consumed energy is negative, produced energy is positive)
         if not data:
             self.debug_print("No data to invert.", "ERROR")
             return None
