@@ -223,7 +223,18 @@ class EGDAPI:
         else:  
             self.debug_print("No data found.", "ERROR")
             return None
-        
+
+    def pastX(self, days, profile="ICC1"):
+        # Calculate start_date and end_date based on the number of days and call get_data interval
+        # Wrapper function to get data for the past X days
+        # End date is always yesterday and start date is X days before yesterday
+        today = datetime.today()
+        start_date = (today - timedelta(days=days)).strftime('%d.%m.%Y')
+        end_date = (today - timedelta(days=1)).strftime('%d.%m.%Y')
+        self.debug_print(f"Getting data for the past {days} days - start: {start_date}, end: {end_date}", "INFO")
+        data = self.get_data("interval", profile, start_date, end_date)
+        return data
+
     def sum_data(self, data, range="daily"):
         if not data:
             self.debug_print("No data to sum.", "ERROR")
