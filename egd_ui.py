@@ -75,12 +75,12 @@ def fetch_and_display():
 
         aggregated_datac = api.sum_data(datac, aggregation.lower())
         aggregated_datap = api.sum_data(datap, aggregation.lower())
-        inverted_data = api.invert_data(aggregated_datap)
+        inverted_data = api.invert_data(aggregated_datac)
 
         if chart_canvas:
             chart_canvas.get_tk_widget().destroy()  # Remove previous chart
 
-        display_chart(aggregated_datac, inverted_data)
+        display_chart(aggregated_datap, inverted_data)
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
