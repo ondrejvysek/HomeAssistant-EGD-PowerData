@@ -176,10 +176,11 @@ class EGDAPI:
         unique_data = []
         unique_timestamps = set()
         page_number = 1 # Start with the first page
+        record_start = 1
         while True:
-            # Update the page number in the parameters
-            params_data["pageStart"] = str(page_number)
-            self.debug_print(f"Executing Page number: {page_number}")
+            # Update the page start record index in the parameters
+            params_data["pageStart"] = str(record_start)
+            self.debug_print(f"Executing Page number: {page_number} (record start: {record_start})")
             # Make the GET request to fetch the data
             response_data = requests.get(self.url_data, headers=headers_data, params=params_data)
             # Check if the request was successful
@@ -188,15 +189,17 @@ class EGDAPI:
                 data = response_data.json()
                 if not data:
                     break
-                if isinstance(data, list) and len(data) > 0:
+                if isinstance(data, dict):
+                    first_record = data
+                elif isinstance(data, list) and len(data) > 0:
                     first_record = data[0]
-                    if 'total' in first_record:
-                        total = first_record['total']
-                    else:
-                        self.debug_print(f"Error: 'total' field not found in the response.", "ERROR")
-                        break
                 else:
                     self.debug_print(f"Error: Unexpected response structure. {data}. Maybe the data are not ready yet, try later today after 13:00", "ERROR")
+                    break
+                if 'total' in first_record:
+                    total = first_record['total']
+                else:
+                    self.debug_print(f"Error: 'total' field not found in the response.", "ERROR")
                     break 
                 self.debug_print(f"Iteration: {page_number} Total records: {total}")               
                 # Check if an entry with the same ean/eic, profile, units, and total already exists
@@ -210,8 +213,9 @@ class EGDAPI:
                     # Add the new entry to all_data
                     self.debug_print(f"New data entry found. Adding to the list.","INFO")
                     all_data.append(first_record)
-                if total < 3000:  # If the returned data is less than pageSize, we've reached the last page
+                if len(first_record.get('data', [])) < 3000:  # If the returned data is less than pageSize, we've reached the last page
                     break                
+                record_start += 3000
                 page_number += 1
             else:
                 self.debug_print(f"Failed to get data: {response_data.status_code} - {response_data.text}", "ERROR")
@@ -265,10 +269,12 @@ class EGDAPI:
             local_tz = pytz.timezone('Europe/Prague')
 
             for item in data[0]['data']:
-                if item['status'] == 'IU012':
+                if item['status'] in ['IU012', 'W', 'IU013', 'IU015', 'IU016']:
                     # Convert the timestamp to a datetime object in UTC
-                    utc_time = dt.strptime(item['timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ")
-                    utc_time = utc.localize(utc_time)
+                    from dateutil.parser import isoparse
+                    utc_time = isoparse(item['timestamp'])
+                    if utc_time.tzinfo is None:
+                        utc_time = utc.localize(utc_time)
                     # Convert the UTC time to local time
                     local_time = utc_time.astimezone(local_tz)
                     # Extract the date and hour part in local time
@@ -306,7 +312,7 @@ class EGDAPI:
                 aggregated_data['total'] = round(total, 2)
 
             for key in aggregated_data:
-                aggregated_data[key] = round(aggregated_data[key], 2)
+                aggregated_data[key] = round(aggregated_data[key], 4)
 
             aggregated_data_json = json.dumps(aggregated_data)
         except Exception as e:
